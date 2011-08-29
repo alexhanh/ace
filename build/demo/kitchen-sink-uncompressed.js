@@ -5269,7 +5269,7 @@ exports.create = create;
  * ***** END LICENSE BLOCK ***** */
 
 
-define('demo/demo', ['require', 'exports', 'module' , 'ace/lib/net', 'pilot/canon', 'pilot/event', 'ace/range', 'ace/editor', 'ace/virtual_renderer', 'ace/theme/textmate', 'ace/edit_session', 'ace/mode/javascript', 'ace/mode/css', 'ace/mode/scss', 'ace/mode/html', 'ace/mode/xml', 'ace/mode/lua', 'ace/mode/python', 'ace/mode/php', 'ace/mode/java', 'ace/mode/csharp', 'ace/mode/ruby', 'ace/mode/c_cpp', 'ace/mode/coffee', 'ace/mode/json', 'ace/mode/perl', 'ace/mode/clojure', 'ace/mode/ocaml', 'ace/mode/svg', 'ace/mode/markdown', 'ace/mode/textile', 'ace/mode/text', 'ace/mode/groovy', 'ace/mode/scala', 'ace/undomanager', 'ace/keyboard/keybinding/vim', 'ace/keyboard/keybinding/emacs', 'ace/keyboard/hash_handler', 'text!demo/docs/plaintext.txt', 'text!demo/docs/javascript.js', 'text!demo/docs/css.css', 'text!demo/docs/scss.scss', 'text!demo/docs/html.html', 'text!demo/docs/lua.lua', 'text!demo/docs/python.py', 'text!demo/docs/php.php', 'text!demo/docs/java.java', 'text!demo/docs/ruby.rb', 'text!demo/docs/csharp.cs', 'text!demo/docs/cpp.cpp', 'text!demo/docs/coffeescript.coffee', 'text!demo/docs/json.json', 'text!demo/docs/perl.pl', 'text!demo/docs/clojure.clj', 'text!demo/docs/ocaml.ml', 'text!demo/docs/svg.svg', 'text!demo/docs/markdown.md', 'text!demo/docs/textile.textile', 'text!demo/docs/groovy.groovy', 'text!demo/docs/scala.scala', 'ace/split'], function(require, exports, module) {
+define('demo/demo', ['require', 'exports', 'module' , 'ace/lib/net', 'pilot/canon', 'pilot/event', 'ace/range', 'ace/editor', 'ace/virtual_renderer', 'ace/theme/textmate', 'ace/edit_session', 'ace/mode/jade', 'ace/mode/javascript', 'ace/mode/css', 'ace/mode/scss', 'ace/mode/html', 'ace/mode/xml', 'ace/mode/lua', 'ace/mode/python', 'ace/mode/php', 'ace/mode/java', 'ace/mode/csharp', 'ace/mode/ruby', 'ace/mode/c_cpp', 'ace/mode/coffee', 'ace/mode/json', 'ace/mode/perl', 'ace/mode/clojure', 'ace/mode/ocaml', 'ace/mode/svg', 'ace/mode/markdown', 'ace/mode/textile', 'ace/mode/text', 'ace/mode/groovy', 'ace/mode/scala', 'ace/undomanager', 'ace/keyboard/keybinding/vim', 'ace/keyboard/keybinding/emacs', 'ace/keyboard/hash_handler', 'text!demo/docs/plaintext.txt', 'text!demo/docs/javascript.js', 'text!demo/docs/css.css', 'text!demo/docs/scss.scss', 'text!demo/docs/html.html', 'text!demo/docs/lua.lua', 'text!demo/docs/python.py', 'text!demo/docs/php.php', 'text!demo/docs/java.java', 'text!demo/docs/ruby.rb', 'text!demo/docs/csharp.cs', 'text!demo/docs/cpp.cpp', 'text!demo/docs/coffeescript.coffee', 'text!demo/docs/json.json', 'text!demo/docs/perl.pl', 'text!demo/docs/clojure.clj', 'text!demo/docs/ocaml.ml', 'text!demo/docs/svg.svg', 'text!demo/docs/markdown.md', 'text!demo/docs/textile.textile', 'text!demo/docs/groovy.groovy', 'text!demo/docs/scala.scala', 'text!demo/docs/jade.jade', 'ace/split'], function(require, exports, module) {
 
 var net = require("ace/lib/net");
 var canon = require("pilot/canon");
@@ -5280,6 +5280,7 @@ var Renderer = require("ace/virtual_renderer").VirtualRenderer;
 var theme = require("ace/theme/textmate");
 var EditSession = require("ace/edit_session").EditSession;
 
+var JadeMode = require("ace/mode/jade").Mode;
 var JavaScriptMode = require("ace/mode/javascript").Mode;
 var CssMode = require("ace/mode/css").Mode;
 var ScssMode = require("ace/mode/scss").Mode;
@@ -5428,6 +5429,10 @@ exports.launch = function(env) {
     docs.scala.setMode(new ScalaMode());
     docs.scala.setUndoManager(new UndoManager());
 
+    docs.jade = new EditSession(require("text!demo/docs/jade.jade"));
+    docs.jade.setMode(new JadeMode());
+    docs.jade.setUndoManager(new UndoManager());
+
 
     // Add a "name" property to all docs
     for (var doc in docs) {
@@ -5472,7 +5477,8 @@ exports.launch = function(env) {
         ocaml: new OcamlMode(),
         csharp: new CSharpMode(),
         groovy: new GroovyMode(),
-        scala: new ScalaMode()
+        scala: new ScalaMode(),
+        jade: new JadeMode()
     };
 
     function getMode() {
@@ -16498,7 +16504,51 @@ define('ace/theme/textmate', ['require', 'exports', 'module' , 'pilot/dom'], fun
 
     exports.cssClass = "ace-tm";
 });
-/* ***** BEGIN LICENSE BLOCK *****
+define('ace/mode/jade', ['require', 'exports', 'module' , 'pilot/oop', 'ace/mode/text', 'ace/tokenizer', 'ace/mode/jade_highlight_rules'], function(require, exports, module) {
+
+  var oop = require("pilot/oop");
+  var TextMode = require("ace/mode/text").Mode;
+  var Tokenizer = require("ace/tokenizer").Tokenizer;
+  var JadeHighlightRules = require("ace/mode/jade_highlight_rules").JadeHighlightRules;
+  // var JavaHighlightRules = require("ace/mode/java_highlight_rules").JavaHighlightRules;
+  // var MatchingBraceOutdent = require("ace/mode/matching_brace_outdent").MatchingBraceOutdent;
+  // var CstyleBehaviour = require("ace/mode/behaviour/cstyle").CstyleBehaviour;
+
+  var Mode = function() {
+      this.$tokenizer = new Tokenizer(new JadeHighlightRules().getRules());
+      // this.$outdent = new MatchingBraceOutdent();
+      // this.$behaviour = new CstyleBehaviour();
+  };
+  oop.inherits(Mode, TextMode);
+
+  (function() {
+    
+      this.createWorker = function(session) {
+          return null;
+      };
+
+  }).call(Mode.prototype);
+
+  exports.Mode = Mode;
+});define('ace/mode/jade_highlight_rules', ['require', 'exports', 'module' , 'pilot/oop', 'pilot/lang', 'ace/mode/text_highlight_rules'], function(require, exports, module) {
+  var oop = require("pilot/oop");
+  var lang = require("pilot/lang");
+  var TextHighlightRules = require("ace/mode/text_highlight_rules").TextHighlightRules;
+
+  var JadeHighlightRules = function() {
+  
+    this.$rules = {
+      "start" : [{
+        token : "comment",
+        regex : "\\/\\/.*$"
+      }]
+    };
+  };
+  
+  oop.inherits(JadeHighlightRules, TextHighlightRules);
+
+  exports.JadeHighlightRules = JadeHighlightRules;
+});/* ***** BEGIN LICENSE BLOCK *****
  * Version: MPL 1.1/GPL 2.0/LGPL 2.1
  *
  * The contents of this file are subject to the Mozilla Public License Version
@@ -25651,6 +25701,23 @@ define("text!demo/docs/html.html", [], "<html>\n" +
   "        <h1 style=\"color:red\">Juhu Kinners</h1>\n" +
   "    </body>\n" +
   "</html>");
+
+define("text!demo/docs/jade.jade", [], "!!! 5\n" +
+  "html(lang=\"en\")\n" +
+  "  head\n" +
+  "    title= pageTitle\n" +
+  "    script(type='text/javascript')\n" +
+  "      if (foo) {\n" +
+  "         bar()\n" +
+  "      }\n" +
+  "  body\n" +
+  "    // Test comment\n" +
+  "    h1 Jade - node template engine\n" +
+  "    #container\n" +
+  "      - if (youAreUsingJade)\n" +
+  "        p You are amazing\n" +
+  "      - else\n" +
+  "        p Get on it!");
 
 define("text!demo/docs/java.java", [], "public class InfiniteLoop {\n" +
   "\n" +

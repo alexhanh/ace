@@ -49,6 +49,7 @@ var Renderer = require("ace/virtual_renderer").VirtualRenderer;
 var theme = require("ace/theme/textmate");
 var EditSession = require("ace/edit_session").EditSession;
 
+var JadeMode = require("ace/mode/jade").Mode;
 var JavaScriptMode = require("ace/mode/javascript").Mode;
 var CssMode = require("ace/mode/css").Mode;
 var ScssMode = require("ace/mode/scss").Mode;
@@ -197,6 +198,10 @@ exports.launch = function(env) {
     docs.scala.setMode(new ScalaMode());
     docs.scala.setUndoManager(new UndoManager());
 
+    docs.jade = new EditSession(require("ace/requirejs/text!demo/docs/jade.jade"));
+    docs.jade.setMode(new JadeMode());
+    docs.jade.setUndoManager(new UndoManager());
+
 
     // Add a "name" property to all docs
     for (var doc in docs) {
@@ -241,7 +246,8 @@ exports.launch = function(env) {
         ocaml: new OcamlMode(),
         csharp: new CSharpMode(),
         groovy: new GroovyMode(),
-        scala: new ScalaMode()
+        scala: new ScalaMode(),
+        jade: new JadeMode()
     };
 
     function getMode() {
